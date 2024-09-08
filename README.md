@@ -53,19 +53,19 @@ const notionToken = 'your-notion-token-here';
 const databaseId = 'your-database-id-here';
 ```
 
-## Notion 数据库字段说明 (Notion Database Description)
+## Notion 数据库字段说明
 
 为了确保脚本正确保存题目信息，请确保你的 Notion 数据库具有以下字段：
 
-| 字段名称 (Field Name) | 类型 (Type)   | 说明 (Description)                                       |
+| 字段名称 | 类型 | 说明                                |
 |-----------------------|---------------|----------------------------------------------------------|
-| **Title (标题)**       | `text`        | 存储 LeetCode 题目的标题。                               |
-| **Difficulty (难度)**  | `select`      | 存储 LeetCode 题目的难度，例如 `简单`、`中等`、`困难`。 |
-| **Link (链接)**        | `url`         | 存储题目链接，方便直接从 Notion 打开对应的 LeetCode 页面。|
-| **Date (日期)**        | `date`        | 保存问题保存到 Notion 的日期。                           |
-| **Tags (标签)**        | `multi-select`| 存储题目的标签，比如 `二叉树`、`动态规划` 等，支持多个标签。|
+| **Title**       | `text`        | 存储 LeetCode 题目的标题。                               |
+| **Difficulty**  | `select`      | 存储 LeetCode 题目的难度，例如 `简单`、`中等`、`困难`。 |
+| **Link**        | `url`         | 存储题目链接，方便直接从 Notion 打开对应的 LeetCode 页面。|
+| **Date**        | `date`        | 保存问题保存到 Notion 的日期。                           |
+| **Tags**        | `multi-select`| 存储题目的标签，比如 `二叉树`、`动态规划` 等，支持多个标签。|
 
-### 表格模板地址 (Table Template URL)
+### 表格模板地址
 
 你可以使用以下 Notion 数据库模板，直接复制并使用：
 [Notion Template 链接](https://wuyifff.notion.site/ac695b0ee80e436382447c6554745ef8?v=dfef27d69ba7475f9bf1fac08870ff7e&pvs=4)

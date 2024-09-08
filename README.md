@@ -19,12 +19,12 @@
 ###  2. 安装用户脚本
 
 1. 打开 Tampermonkey 仪表盘，点击 **"添加新脚本"**。
-2. 将本仓库的 `leetcode2notion.user.js` 脚本代码粘贴到编辑器中。
+2. 将本仓库的 `main.js` 脚本代码粘贴到编辑器中。
 3. 点击保存，脚本将会自动应用到 LeetCode 网站上。
 
 或者直接通过脚本安装链接安装：
 ```bash
-https://github.com/wuyifff/leetcode2notion/raw/main/leetcode2notion.user.js
+https://github.com/wuyifff/leetcode2notion/raw/main/main.js
 ```
 
 ##  配置
@@ -97,12 +97,12 @@ First, you need to install [Tampermonkey](https://www.tampermonkey.net/), a popu
 ###  2. Install Userscript
 
 1. Open the Tampermonkey dashboard, and click **"Add a new script"**.
-2. Paste the code from `leetcode2notion.user.js` in this repository into the editor.
+2. Paste the code from `main.js` in this repository into the editor.
 3. Click save, and the script will automatically apply to the LeetCode website.
 
 Or install the script directly via the install link:
 ```bash
-https://github.com/wuyifff/leetcode2notion/raw/main/leetcode2notion.user.js
+https://github.com/wuyifff/leetcode2notion/raw/main/main.js
 ```
 
 ##  Configuration

@@ -60,7 +60,7 @@ const databaseId = 'your-database-id-here';
 
 | 字段名称 | 类型 | 说明                                |
 |-----------------------|---------------|----------------------------------------------------------|
-| **Title**       | `text`        | 存储 LeetCode 题目的标题。                               |
+| **Title**       | `Title`        | 存储 LeetCode 题目的标题。                               |
 | **Difficulty**  | `select`      | 存储 LeetCode 题目的难度，例如 `简单`、`中等`、`困难`。 |
 | **Link**        | `url`         | 存储题目链接，方便直接从 Notion 打开对应的 LeetCode 页面。|
 | **Date**        | `date`        | 保存问题保存到 Notion 的日期。                           |
@@ -139,7 +139,7 @@ To ensure the script correctly saves problem information, make sure your Notion 
 
 | Field Name         | Type           | Description                                                    |
 |--------------------|----------------|----------------------------------------------------------------|
-| **Title**           | `text`         | Stores the title of the LeetCode problem.                      |
+| **Title**           | `Title`         | Stores the title of the LeetCode problem.                      |
 | **Difficulty**      | `select`       | Stores the problem difficulty, such as `Easy`, `Medium`, or `Hard`. |
 | **Link**            | `url`          | Stores the URL of the problem for easy access from Notion.      |
 | **Date**            | `date`         | Saves the date when the problem is added to Notion.             |

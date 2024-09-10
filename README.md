@@ -34,6 +34,7 @@ https://github.com/wuyifff/leetcode2notion/raw/main/main.js
 
 1. 访问 [Notion Developer Portal](https://www.notion.so/my-integrations) 并创建一个新的集成。
 2. 在创建的集成中复制 **Integration Token**，将其粘贴到脚本中的 `notionToken` 变量。
+3. 在你notion database页面点击connections，授予这个integration权限
 
 ###  2. 获取 Notion Database ID
 1. 打开你的 Notion 数据库。
@@ -112,6 +113,7 @@ To save problems to Notion, you need to create a Notion integration and get the 
 
 1. Visit the [Notion Developer Portal](https://www.notion.so/my-integrations) and create a new integration.
 2. Copy the **Integration Token** from the integration you created and paste it into the `notionToken` variable in the script.
+3. Click on 'Connections' in your Notion database page and grant this integration permission.
 
 ###  2. Get Notion Database ID
 1. Open your Notion database.

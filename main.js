@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         leetcode2notion
 // @namespace    wuyifff
-// @version      1.1
+// @version      1.2
 // @description  Save LeetCode problems to Notion after clicking a button.
 // @author       wuyifff
 // @match        https://leetcode.cn/problems/*
@@ -21,7 +21,10 @@
 
     // 1. add save button
     // select language button (optional)
+    let currentMinutes = 0;
+    let currentSeconds = 0;
     function addUIElements() {
+        // 1.1 save button
         const button = document.createElement("button");
         button.innerHTML = "Save to Notion";
         button.style.position = "fixed";
@@ -36,6 +39,7 @@
         button.style.cursor = "pointer";
         button.onclick = saveProblemToNotion;
 
+        // 1.2 save language button (disabled)
         const select = document.createElement("select");
         select.id = "languageSelect";
         select.style.position = "fixed";
@@ -48,18 +52,30 @@
         select.style.border = "none";
         select.style.borderRadius = "5px";
         select.style.cursor = "pointer";
-
         const optionPython = document.createElement("option");
         optionPython.value = "python";
         optionPython.innerText = "Python";
-
         const optionCpp = document.createElement("option");
         optionCpp.value = "cpp";
         optionCpp.innerText = "C++";
-
         select.appendChild(optionPython);
         select.appendChild(optionCpp);
 
+        // 1.3 timer element
+        const timerSpan = document.createElement("span");
+        timerSpan.className = 'ml-2 group/nav-back cursor-pointer gap-2 hover:text-lc-icon-primary dark:hover:text-dark-lc-icon-primary flex items-center h-[32px] transition-none hover:bg-fill-quaternary dark:hover:bg-fill-quaternary text-gray-60 dark:text-gray-60 px-2';
+        let totalSeconds = 0;
+        function updateTimer() {
+            totalSeconds++;
+            currentMinutes = Math.floor(totalSeconds / 60);
+            currentSeconds = totalSeconds % 60;
+            const formattedMinutes = currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
+            const formattedSeconds = currentSeconds < 10 ? `0${currentSeconds}` : currentSeconds;
+            timerSpan.textContent = `Time: ${formattedMinutes}:${formattedSeconds}`;
+        }
+        var timerInterval = setInterval(updateTimer, 1000); // update every second
+
+        // set up container
         const container = document.createElement("div");
         container.style.display = "flex";
         container.style.flexDirection = "column";
@@ -67,11 +83,21 @@
         container.style.marginLeft = "10px";
         //container.appendChild(select);
         container.appendChild(button);
-
         container.style.position = "fixed";
         container.style.bottom = "10px";
         container.style.right = "10px";
         document.body.appendChild(container);
+
+        // timer is append at different location
+        function tryAppendButton() {
+            var targetDiv = document.getElementById('ide-top-btns');
+            if (targetDiv) {
+                targetDiv.appendChild(timerSpan);
+                clearInterval(appendButtonInterval);
+                console.log("append timer success");
+            }
+        }
+        var appendButtonInterval = setInterval(tryAppendButton, 500);
     }
 
     // 2. get leetcode problem info
@@ -100,7 +126,8 @@
             url: url,
             tag: tagTexts,
             code: codeText,
-            language: selectedLanguage
+            language: selectedLanguage,
+            time: currentMinutes
         };
     }
 
@@ -189,7 +216,10 @@
                 },
                 'Tags': {
                     multi_select: tags
-                }
+                },
+                'Time': {
+                    number: problemData.time
+                },
             },
             children: [
                 {

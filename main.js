@@ -11,13 +11,15 @@
 // @grant        GM_xmlhttpRequest
 // @license      MIT
 // @homepage     https://github.com/wuyifff/leetcode2notion
+// @downloadURL https://update.greasyfork.org/scripts/507388/leetcode2notion.user.js
+// @updateURL https://update.greasyfork.org/scripts/507388/leetcode2notion.meta.js
 // ==/UserScript==
 
 (function() {
     'use strict';
     // replace to your own token and ID
-    const notionToken = '';
-    const databaseId = '';
+    const notionToken = '';  // Notion API token
+    const databaseId = '';  // Notion database ID
 
     // 1. add save button
     // select language button (optional)
@@ -61,22 +63,8 @@
         select.appendChild(optionPython);
         select.appendChild(optionCpp);
 
-        // 1.3 timer element
-        const timerSpan = document.createElement("span");
-        timerSpan.className = 'ml-2 group/nav-back cursor-pointer gap-2 hover:text-lc-icon-primary dark:hover:text-dark-lc-icon-primary flex items-center h-[32px] transition-none hover:bg-fill-quaternary dark:hover:bg-fill-quaternary text-gray-60 dark:text-gray-60 px-2';
-        let totalSeconds = 0;
-        function updateTimer() {
-            totalSeconds++;
-            currentMinutes = Math.floor(totalSeconds / 60);
-            currentSeconds = totalSeconds % 60;
-            const formattedMinutes = currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
-            const formattedSeconds = currentSeconds < 10 ? `0${currentSeconds}` : currentSeconds;
-            timerSpan.textContent = `Time: ${formattedMinutes}:${formattedSeconds}`;
-        }
-        var timerInterval = setInterval(updateTimer, 1000); // update every second
-
-        // set up container
         const container = document.createElement("div");
+        container.id = "save"
         container.style.display = "flex";
         container.style.flexDirection = "column";
         container.style.alignItems = "center";
@@ -87,17 +75,44 @@
         container.style.bottom = "10px";
         container.style.right = "10px";
         document.body.appendChild(container);
+    }
+    function addTimer() {
+        // Create timer span if it doesn't exist
+        let timerSpan = document.querySelector('#timerSpan');
+        if (!timerSpan) {
+            timerSpan = document.createElement("span");
+            timerSpan.id = "timerSpan";
+            timerSpan.className = 'ml-2 group/nav-back cursor-pointer gap-2 hover:text-lc-icon-primary dark:hover:text-dark-lc-icon-primary flex items-center h-[32px] transition-none hover:bg-fill-quaternary dark:hover:bg-fill-quaternary text-gray-60 dark:text-gray-60 px-2';
 
-        // timer is append at different location
-        function tryAppendButton() {
-            var targetDiv = document.getElementById('ide-top-btns');
+            // Append the timer span to the target location
+            const targetDiv = document.getElementById('ide-top-btns');
             if (targetDiv) {
                 targetDiv.appendChild(timerSpan);
-                clearInterval(appendButtonInterval);
                 console.log("append timer success");
+            } else {
+                console.log("no ide-top-btns element!");
             }
         }
-        var appendButtonInterval = setInterval(tryAppendButton, 500);
+    }
+
+    function updateTimer() {
+        const now = new Date().getTime();  // Get the current time
+        const elapsedTime = now - startTime;  // Calculate the elapsed milliseconds
+        const totalSeconds = Math.floor(elapsedTime / 1000);  // Convert to seconds
+        currentMinutes = Math.floor(totalSeconds / 60);
+        currentSeconds = totalSeconds % 60;
+        const formattedMinutes = currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
+        const formattedSeconds = currentSeconds < 10 ? `0${currentSeconds}` : currentSeconds;
+
+        // Make sure timerSpan is available
+        let timerSpan = document.querySelector('#timerSpan');
+        if (!timerSpan) {
+            addTimer();
+            timerSpan = document.querySelector('#timerSpan'); // Re-select after creation
+        }
+
+        // Update the timer content
+        timerSpan.textContent = `Time: ${formattedMinutes}:${formattedSeconds}`;
     }
 
     // 2. get leetcode problem info
@@ -268,5 +283,9 @@
     }
 
     addUIElements();
-
+    let startTime;  // Record the start time
+    setTimeout(function() {
+        startTime = new Date().getTime();
+        var tmp = setInterval(updateTimer, 1000);  // update every second
+    }, 5000);  // delay 5 seconds
 })();

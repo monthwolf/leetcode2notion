@@ -69,8 +69,7 @@ const databaseId = 'your-database-id-here';
 ### 表格模板地址
 
 你可以使用以下 Notion 数据库模板，直接复制并使用：
-[Notion Template 链接](https://flossy-drink-.0
-06b8.notion.site/TODO-194bcbe20b5280f4ae95efd0c839c5a7)
+[Notion Template 链接](https://flossy-drink-.006b8.notion.site/TODO-194bcbe20b5280f4ae95efd0c839c5a7)
 
 该模板已经预先设置好了所需的字段和类型，可以直接使用或根据需求调整。
 

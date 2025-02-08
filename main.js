@@ -18,13 +18,15 @@
 (function() {
     'use strict';
     // replace to your own token and ID
-    const notionToken = '';  // Notion API token
-    const databaseId = '';  // Notion database ID
+    const notionToken = 'xxx';  // Notion API token
+    const databaseId = 'xxx';  // Notion database ID
+    const lcName = 'xxx'// 你的leetcode昵称
 
     // 1. add save button
     // select language button (optional)
     let currentMinutes = 0;
     let currentSeconds = 0;
+    let selectedLanguage = 'java'; // 默认语言
     function addUIElements() {
         // 1.1 save button
         const button = document.createElement("button");
@@ -54,14 +56,27 @@
         select.style.border = "none";
         select.style.borderRadius = "5px";
         select.style.cursor = "pointer";
-        const optionPython = document.createElement("option");
-        optionPython.value = "python";
-        optionPython.innerText = "Python";
-        const optionCpp = document.createElement("option");
-        optionCpp.value = "cpp";
-        optionCpp.innerText = "C++";
-        select.appendChild(optionPython);
-        select.appendChild(optionCpp);
+        // 创建语言选项
+        const languages = [
+            { value: 'java', text: 'Java' },
+            { value: 'python', text: 'Python' },
+            { value: 'cpp', text: 'C++' },
+            { value: 'javascript',text: 'JavaScript'}
+        ];
+
+        languages.forEach(lang => {
+            const option = document.createElement("option");
+            option.value = lang.value;
+            option.innerText = lang.text;
+            select.appendChild(option);
+        });
+
+        // 添加改变事件监听器
+        select.addEventListener('change', function(e) {
+            selectedLanguage = e.target.value;
+            // 可以在这里添加其他需要随语言改变的逻辑
+            console.log(`Language changed to: ${selectedLanguage}`);
+        });
 
         const container = document.createElement("div");
         container.id = "save"
@@ -69,7 +84,7 @@
         container.style.flexDirection = "column";
         container.style.alignItems = "center";
         container.style.marginLeft = "10px";
-        //container.appendChild(select);
+        container.appendChild(select);
         container.appendChild(button);
         container.style.position = "fixed";
         container.style.bottom = "10px";
@@ -123,26 +138,71 @@
         const url = window.location.href;
         const tagElements = document.querySelectorAll("a[href*='/tag/']");
         const tagTexts = Array.from(tagElements).map(element => element.innerText);
+        // 从数据中提取题目编号
+        const number = document.querySelector("#__NEXT_DATA__").text.match(/questionId":"(\d+)"/)[1];
+        const time = document.querySelector("#timerSpan").innerText.split(': ')[1]
+        const desc = document.querySelector(`[data-track-load="description_content"]`)
+        // 构建localStorage中的key
+        const storageKey = `ugc_${lcName}_${number}_${selectedLanguage}_code`;
 
-        const codeDiv = document.querySelector('.view-lines.monaco-mouse-cursor-text[role="presentation"]');
+        // 从localStorage获取缓存的数据
+        const cachedData = localStorage.getItem(storageKey);
         let codeText = '';
-        if (codeDiv) {
-            const codeLines = codeDiv.querySelectorAll('div');
-            codeText = Array.from(codeLines).map(line => line.innerText).join('\n');
-        } else {
-            codeText = 'No code found';
+        if (cachedData) {
+            try {
+                // 解析JSON数据
+                const parsedData = JSON.parse(cachedData);
+                // 将code赋值给problem.code
+                codeText = parsedData.code;
+            } catch (error) {
+                console.error('解析缓存数据时出错:', error);
+            }
         }
+        const elements = desc.querySelectorAll('p, pre,ul');
+
+        const descText = [];
+
+        elements.forEach(element => {
+            if (element.tagName.toLowerCase() === 'p'|| element.tagName.toLowerCase() === 'ul') {
+                descText.push({
+                    "paragraph": {
+                        "rich_text": [
+                            {
+                                "text": {
+                                    "content": element.textContent,
+                                }
+                            }
+                        ]
+                    }
+                });
+            } else if (element.tagName.toLowerCase() === 'pre') {
+                descText.push({
+                    "quote": {
+                        "rich_text": [
+                            {
+                                "type": "text",
+                                "text": {
+                                    "content": element.textContent,
+                                    "link": null
+                                }
+                            }
+                        ]
+                    }
+                });
+            }
+        });
         //console.log(codeText);
         //const selectedLanguage = document.getElementById("languageSelect").value;
-        const selectedLanguage = 'python';
+
         return {
             title: title,
             difficulty: difficulty,
             url: url,
             tag: tagTexts,
+            desc:descText,
             code: codeText,
             language: selectedLanguage,
-            time: currentMinutes
+            time: time
         };
     }
 
@@ -197,17 +257,57 @@
         });
     }
 
+    /**
+ * 将代码内容分割成Notion富文本块
+ * @param {object} problemData - 包含code属性的问题数据对象
+ * @param {number} [chunkSize=1500] - 每个块的最大字符数（默认1500）
+ * @returns {Array} 返回格式化后的富文本块数组
+ */
+    function splitCodeIntoBlocks(code, chunkSize = 1500) {
+        const chunks = [];
+        let remaining = code;
+
+        // 分割代码
+        while (remaining.length > 0) {
+            if (remaining.length <= chunkSize) {
+                chunks.push(remaining);
+                break;
+            }
+
+            // 在块大小限制内找最后一个换行符
+            let splitIndex = remaining.lastIndexOf('\n', chunkSize);
+
+            // 如果没找到换行符，就在单词边界分割
+            if (splitIndex === -1 || splitIndex > chunkSize) {
+                splitIndex = remaining.lastIndexOf(' ', chunkSize);
+                if (splitIndex === -1 || splitIndex > chunkSize) {
+                    splitIndex = chunkSize;
+                }
+            }
+
+            chunks.push(remaining.substring(0, splitIndex));
+            remaining = remaining.substring(splitIndex).trimLeft();
+        }
+
+        // 转换为Notion富文本块格式
+        return chunks.map(chunk => ({
+            type: 'text',
+            text: {
+                content: chunk
+            }
+        }));
+    }
     // 4. create new page
     function createNewNotionPage(problemData) {
         const tags = problemData.tag.map(tag => ({
             name: tag
         }));
-
+        const code = splitCodeIntoBlocks(problemData.code);
         const url = `https://api.notion.com/v1/pages`;
         const body = {
             parent: { database_id: databaseId },
             properties: {
-                'Title': {
+                '题目': {
                     title: [
                         {
                             text: {
@@ -216,40 +316,83 @@
                         }
                     ]
                 },
-                'Difficulty': {
+                '难度': {
                     select: {
                         name: problemData.difficulty
                     }
                 },
-                'Link': {
+                '链接': {
                     url: problemData.url
                 },
-                'Date': {
+                '题解参考': {
+                    url: problemData.url+'solutions/'
+                },
+                '创建日期': {
                     date: {
                         start: new Date().toISOString().split('T')[0] // format YYYY-MM-DD
                     }
                 },
-                'Tags': {
+                '标签': {
                     multi_select: tags
                 },
-                'Time': {
-                    number: problemData.time
+                '耗时': {
+                    rich_text:[
+                        {
+                         text:{
+                               content: problemData.time
+                        }
+                    }
+                ]
+                },
+                '刷题次数': {
+                    number: 1
                 },
             },
             children: [
                 {
-                    object: 'block',
-                    type: 'code',
-                    code: {
-                        rich_text: [
-                            {
-                                type: 'text',
-                                text: {
-                                    content: problemData.code
-                                }
+                    "heading_1": {
+                        "rich_text": [{
+                            "type": "text",
+                            "text": {
+                                "content": "题目介绍",
+                                "link": null
                             }
-                        ],
-                        language: problemData.language
+                        }],
+                        "color": "default",
+                        "is_toggleable": true,
+                        children:problemData.desc
+                    }
+                },
+                {
+                    "heading_1": {
+                        "rich_text": [{
+                            "type": "text",
+                            "text": {
+                                "content": "解题思路",
+                                "link": null
+                            }
+                        }],
+                        "color": "default",
+                        "is_toggleable": true,
+                    }
+                },
+                {
+                    "heading_1": {
+                        "rich_text": [{
+                            "type": "text",
+                            "text": {
+                                "content": "解题代码",
+                                "link": null
+                            }
+                        }],
+                        "color": "default",
+                        "is_toggleable": true,
+                        children:[{
+                            code: {
+                                rich_text:code,
+                                language: problemData.language
+                            }
+                        }]
                     }
                 }
             ]
